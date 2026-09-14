@@ -3,27 +3,23 @@
   "version": "0.1.0",
   "private": true,
   "homepage": "https://wayd-7b7d5.firebaseapp.com/",
-  "proxy": "http://localhost:3001",
   "dependencies": {
-    "bootstrap": "^4.3.1",
-    "firebase": "^7.5.0",
-    "react": "^16.12.0",
-    "react-bootstrap": "^1.0.0-beta.16",
-    "react-dom": "^16.12.0",
-    "react-scripts": "3.2.0"
+    "bootstrap": "^4.6.2",
+    "firebase": "^12.19.0",
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0",
+    "express": "^4.22.2",
+    "firebase-admin": "^14.4.0",
+    "twilio": "^6.1.1"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
+    "start": "vite",
+    "build": "vite build",
+    "test": "vitest run",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build",
-    "server": "node-env-run server --exec nodemon | pino-colada",
-    "dev": "run-p server start"
-  },
-  "eslintConfig": {
-    "extends": "react-app"
+    "server": "node --env-file-if-exists=.env server/index.js",
+    "dev": "concurrently -k \"npm run server\" \"npm start\""
   },
   "browserslist": {
     "production": [
@@ -38,14 +34,17 @@
     ]
   },
   "devDependencies": {
-    "body-parser": "^1.19.0",
-    "express": "^4.17.1",
-    "express-pino-logger": "^4.0.0",
-    "gh-pages": "^2.1.1",
-    "node-env-run": "^3.0.2",
-    "nodemon": "^2.0.1",
-    "npm-run-all": "^4.1.5",
-    "pino-colada": "^1.5.0",
-    "twilio": "^3.37.1"
+    "vite": "^8.3.0",
+    "vitest": "^5.0.0",
+    "jsdom": "^30.0.1",
+    "gh-pages": "^6.3.0",
+    "concurrently": "^9.2.1"
+  },
+  "engines": {
+    "node": "^22.22.2 || ^24.15.0 || >=26.0.0"
+  },
+  "overrides": {
+    "qs": "^6.16.0",
+    "uuid": "^11.1.1"
   }
 }

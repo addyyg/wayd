@@ -1,18 +1,24 @@
 const express = require('express');
+const { rateLimit } = require('express-rate-limit');
 const { applicationDefault, initializeApp } = require('firebase-admin/app');
 const { getAuth } = require('firebase-admin/auth');
 const client = require('twilio')(
     process.env.TWILIO_ACCOUT_SID,
     process.env.TWILIO_AUTH_TOKEN
   );
-const lastMessageAtByUser = new Map();
 
 const app = express();
 initializeApp({ credential: applicationDefault() });
 app.disable('x-powered-by');
 app.use(express.json({ limit: '4kb' }));
+const messageRateLimit = rateLimit({
+  windowMs: 60_000,
+  limit: 1,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false
+});
 
-app.post('/api/messages', async (req, res) => {
+app.post('/api/messages', messageRateLimit, async (req, res) => {
     res.header('Content-Type', 'application/json');
     const token = req.get('authorization')?.replace(/^Bearer\s+/i, '');
     const body = typeof req.body.body === 'string' ? req.body.body.trim() : '';
@@ -24,13 +30,7 @@ app.post('/api/messages', async (req, res) => {
     }
 
     try {
-      const decodedToken = await getAuth().verifyIdToken(token);
-      const now = Date.now();
-      const lastMessageAt = lastMessageAtByUser.get(decodedToken.uid) || 0;
-      if (now - lastMessageAt < 60_000) {
-        return res.status(429).json({ success: false });
-      }
-      lastMessageAtByUser.set(decodedToken.uid, now);
+      await getAuth().verifyIdToken(token);
       await client.messages.create({
         from: process.env.TWILIO_PHONE_NUMBER,
         to: process.env.SMS_RECIPIENT_NUMBER,

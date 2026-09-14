@@ -1,5 +1,8 @@
 import React, { Component } from 'react'
-import * as firebase from 'firebase'
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/auth';
+import 'firebase/compat/database';
+import 'firebase/compat/analytics';
 import './App.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -130,17 +133,19 @@ class App extends Component {
     this.createEvent(this.state.activity, this.state.capacity, this.state.time, this.state.location,
       this.state.price)
     var textBody = 'Your friend, Mehul Gore just started ' + this.state.activity + '. Go to tinyurl.com/waydyc to check it out!'
-    fetch('/api/messages', {
+    this.state.user.getIdToken().then(token => fetch('/api/messages', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify({ to: '+12144992345', body: textBody })
-    })
+      body: JSON.stringify({ body: textBody })
+    }))
   }
 
   createEvent(activity, capacity, time, location, price) {
     var ref = firebase.database().ref('events').push({
+      createdBy: this.state.user.uid,
       activity: activity,
       capacity: capacity,
       time: time,

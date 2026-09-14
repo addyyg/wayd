@@ -1,0 +1,46 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "events": {
+      ".read": "auth != null",
+      "$event": {
+        ".write": "auth != null && !data.exists() && newData.child('createdBy').val() === auth.uid",
+        ".validate": "newData.hasChildren(['activity', 'capacity', 'time', 'location', 'price'])",
+        "createdBy": {
+          ".validate": "newData.isString() && newData.val() === auth.uid"
+        },
+        "activity": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 120"
+        },
+        "capacity": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 4"
+        },
+        "time": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 120"
+        },
+        "location": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 200"
+        },
+        "price": {
+          ".validate": "newData.isString() && newData.val().length <= 40"
+        },
+        "people": {
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid",
+            ".validate": "newData.val() === null || newData.hasOnly(['random'])"
+          }
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "all_users": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    }
+  }
+}
